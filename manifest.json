@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "AI Waiting Room",
+  "version": "2.0",
+  "description": "Stay entertained with Shorts & Reels while AI generates your content.",
+  "permissions": [
+    "webRequest",
+    "tabs",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.google.com/*",
+    "*://*.youtube.com/*",
+    "*://*.instagram.com/*",
+    "*://*.tiktok.com/*"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "AI Waiting Room"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
