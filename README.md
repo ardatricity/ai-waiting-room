@@ -2,11 +2,6 @@
 
 <div align="center">
   <img src="icons/icon128.png" alt="AI Waiting Room Icon" width="128" />
-  <br />
-  <br />
-  <a href="https://chrome.google.com/webstore/detail/your-id-here">
-    <img src="https://img.shields.io/badge/Chrome_Web_Store-Available-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Chrome Web Store" />
-  </a>
 </div>
 
 <br />
