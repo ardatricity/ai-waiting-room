@@ -7,8 +7,9 @@
 const CONFIG = {
   // URL patterns to detect AI generation requests
   TARGET_URL_PARTS: [
-    'GenerateContent',  // AI Studio (aistudio.google.com)
-    'StreamGenerate',   // Gemini (gemini.google.com)
+    'GenerateContent',      // AI Studio (aistudio.google.com)
+    'StreamGenerate',       // Gemini (gemini.google.com)
+    'backend-api/f/conversation',  // ChatGPT (chatgpt.com)
   ],
   SWITCH_DELAY_MS: 500,
   DEBUG: false,
@@ -73,6 +74,9 @@ function getPlatformConfig() {
  * Check if URL matches any of the target patterns for AI generation
  */
 function isAIGenerationRequest(url) {
+  // Exclude ChatGPT /prepare endpoint (fires before actual generation)
+  if (url.includes('/conversation/prepare')) return false;
+
   return CONFIG.TARGET_URL_PARTS.some(pattern => url.includes(pattern));
 }
 
@@ -193,20 +197,27 @@ chrome.storage.onChanged.addListener((changes) => {
   }
 });
 
+// URL patterns for webRequest listeners
+const MONITORED_URLS = [
+  '*://*.google.com/*',
+  '*://*.chatgpt.com/*',
+  '*://*.openai.com/*',
+];
+
 // Listen for AI generation requests
 chrome.webRequest.onBeforeRequest.addListener(
   handleGenerationStart,
-  { urls: ['*://*.google.com/*'] }
+  { urls: MONITORED_URLS }
 );
 
 // Listen for request completion
 chrome.webRequest.onCompleted.addListener(
   handleGenerationComplete,
-  { urls: ['*://*.google.com/*'] }
+  { urls: MONITORED_URLS }
 );
 
 // Listen for request errors (also means completion)
 chrome.webRequest.onErrorOccurred.addListener(
   handleGenerationComplete,
-  { urls: ['*://*.google.com/*'] }
+  { urls: MONITORED_URLS }
 );
