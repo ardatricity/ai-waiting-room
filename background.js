@@ -5,7 +5,11 @@
 
 // Configuration
 const CONFIG = {
-  TARGET_URL_PART: 'GenerateContent',
+  // URL patterns to detect AI generation requests
+  TARGET_URL_PARTS: [
+    'GenerateContent',  // AI Studio (aistudio.google.com)
+    'StreamGenerate',   // Gemini (gemini.google.com)
+  ],
   SWITCH_DELAY_MS: 500,
   DEBUG: false,
 };
@@ -63,6 +67,13 @@ async function loadSettings() {
  */
 function getPlatformConfig() {
   return PLATFORMS[state.settings.platform] || PLATFORMS.youtube;
+}
+
+/**
+ * Check if URL matches any of the target patterns for AI generation
+ */
+function isAIGenerationRequest(url) {
+  return CONFIG.TARGET_URL_PARTS.some(pattern => url.includes(pattern));
 }
 
 /**
@@ -125,14 +136,14 @@ async function pauseDistraction() {
 }
 
 /**
- * Return to AI Studio tab
+ * Return to original AI tab (AI Studio or Gemini)
  */
-async function returnToAIStudio() {
+async function returnToOriginalTab() {
   if (!state.originalTabId) return;
 
   try {
     await chrome.tabs.update(state.originalTabId, { active: true });
-    log('Returned to AI Studio tab:', state.originalTabId);
+    log('Returned to original tab:', state.originalTabId);
   } catch (error) {
     // Original tab might be closed
     log('Could not return to original tab:', error.message);
@@ -145,7 +156,7 @@ async function returnToAIStudio() {
 function handleGenerationStart(details) {
   if (!state.settings.enabled) return;
   if (details.method !== 'POST') return;
-  if (!details.url.includes(CONFIG.TARGET_URL_PART)) return;
+  if (!isAIGenerationRequest(details.url)) return;
 
   log('🚀 AI Generation started!');
   state.originalTabId = details.tabId;
@@ -159,12 +170,12 @@ function handleGenerationStart(details) {
  */
 async function handleGenerationComplete(details) {
   if (details.method !== 'POST') return;
-  if (!details.url.includes(CONFIG.TARGET_URL_PART)) return;
+  if (!isAIGenerationRequest(details.url)) return;
 
   log('✅ AI Generation completed!');
 
   await pauseDistraction();
-  await returnToAIStudio();
+  await returnToOriginalTab();
 }
 
 // Initialize settings on startup
